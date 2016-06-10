@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+
+<!--
+  ~ Copyright (C) 2016. PGS Software SA
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License. You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under the License
+  ~ is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+  ~ or implied. See the License for the specific language governing permissions and limitations under
+  ~ the License.
+  ~
+  -->
+
+<html lang="en" ng-app="OtaApp" ng-controller="AppCtrl">
+
+<head>
+    <meta charset="UTF-8">
+    <title>OTA for {{name}}</title>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.0.9/angular-material.min.css">
+
+</head>
+
+<body ng-cloak>
+
+<div ng-cloak>
+    <md-toolbar class="md-tall md-primary">
+        <h1 class="md-toolbar-tools">
+            <span>OTA for {{name}}</span>
+        </h1>
+    </md-toolbar>
+    <md-content class="md-padding" layout-xs="column" layout="row" layout-align="center center">
+        <div flex-xs flex-gt-xs="50" layout="column">
+            <md-card flex ng-repeat="buildType in buildTypes">
+                <md-card-title>
+                    <md-card-title-text>
+                        <span class="md-headline">{{buildType.name}}</span>
+                        <span class="md-subhead">{{buildType.meta}}</span>
+                        <span class="md-subhead">Version code: {{buildType.versionCode}}</span>
+                    </md-card-title-text>
+                    <md-card-title-media>
+                        <div class="md-media-lg card-media">
+                            <img class="md-media-xl"
+                                 src="https://zxing.org/w/chart?cht=qr&chs=350x350&chld=L&choe=UTF-8&chl={{buildType.apkLink}}"
+                            ></div>
+                    </md-card-title-media>
+                </md-card-title>
+                <md-card-actions layout="row" layout-align="end center">
+                    <md-button ng-href="{{buildType.apkLink}}" target="_blank">Download</md-button>
+                </md-card-actions>
+            </md-card>
+        </div>
+    </md-content>
+</div>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+<script type="text/javascript"
+        src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+<script type="text/javascript"
+        src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+<script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/angular-material/1.0.9/angular-material.min.js"></script>
+
+<script type="text/javascript" src="data.js">
+</script>
+<!-- Your application bootstrap  -->
+<script type="text/javascript">
+/**
+     * You must include the dependency on 'ngMaterial'
+     */
+      
+var myApp = angular.module('OtaApp', ['ngMaterial']);
+myApp.config(function($logProvider){
+  $logProvider.debugEnabled(false);
+});
+
+myApp.controller('AppCtrl', ['$scope', '$log', '$location',
+function AppCtrl($scope, $log, $location) {
+
+    var buildTypes = data.buildTypes;
+
+    $scope.buildTypes = [];
+
+    for (y in buildTypes){
+      var type = buildTypes[y];
+      $log.debug(JSON.stringify(type));
+      var currentLink = String($location.absUrl());
+      var apkLink;
+      //detecting if we have extra get params
+      if(currentLink.indexOf("?") > - 1){
+         $log.debug('we have get query parameters');
+         apkLink = currentLink.split('?')[0] ;
+         $log.debug("splited "+ apkLink);
+      }else{
+          apkLink = currentLink;
+      }
+
+      if(apkLink.indexOf('.html') > -1){
+        $log.debug('we have .html in url. Lets get rid of it');
+        apkLink = apkLink.substring(0, apkLink.lastIndexOf('/'));
+      }
+  
+      if(apkLink.lastIndexOf('/')===apkLink.length){
+         $log.debug('url end on /. ');
+         apkLink = apkLink + type.fileName;    
+      }else{
+         apkLink = apkLink +'/'+ type.fileName;    
+      }
+      
+      $log.debug("final apkLink="+apkLink);    
+      type.apkLink = apkLink;
+      $scope.buildTypes[y] = type;
+    }
+    $scope.data = data.buildDate;
+    $scope.name = data.name;
+}
+]);
+
+
+
+
+
+</script>
+
+</body>
+
+</html>

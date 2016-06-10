@@ -1,0 +1,7 @@
+<component name="CopyrightManager">
+  <settings default="PGS">
+    <module2copyright>
+      <element module="otaBuilderCopyrightScope" copyright="PGS" />
+    </module2copyright>
+  </settings>
+</component>
